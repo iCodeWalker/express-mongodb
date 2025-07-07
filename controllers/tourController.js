@@ -1,19 +1,9 @@
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import Tour from '../models/tourModel.js';
-
-// const __filename = fileURLToPath(import.meta.url);
-// const __dirname = path.dirname(__filename);
 
 /**
  *
  * Creating separate Route handlers
  */
-
-// const tours = JSON.parse(
-//   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
-// );
 
 /**
  * checkBody : Check body middleware
@@ -49,34 +39,46 @@ export const checkTourId = (req, res, next, value) => {
 /**
  * getAllTours : Route handler getting all tours
  */
-export const getAllTours = (req, res) => {
-  console.log(req.requestTime);
-  res.status(200).json({
-    status: 'success',
-  });
+export const getAllTours = async (req, res) => {
+  try {
+    const tours = await Tour.find();
+
+    res.status(200).json({
+      status: 'success',
+      results: tours.length,
+      data: {
+        tours: tours,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      message: err,
+    });
+  }
 };
 
 /**
  * getTour : Route handler for getting a single tour
  */
 
-export const getTour = (req, res) => {
-  /**
-   * req.params is where all the params are stored
-   */
-  // console.log(req.params)
+export const getTour = async (req, res) => {
+  try {
+    const tour = await Tour.findById(req.params.id);
+    // const tour = await Tour.findById(req.params.id);
 
-  // const id = req.params.id * 1;
-  // const tour = tours.find((item) => item.id === id);
-
-  //   if (!tour) {
-  //     return res.status(404).json({
-  //       status: 'fail',
-  //       message: 'Invalid tour',
-  //     });
-  //   }
-
-  res.status(200).json({ status: 'success' });
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour: tour,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      message: err,
+    });
+  }
 };
 
 /**
@@ -110,42 +112,43 @@ export const createTour = async (req, res) => {
  * updateTour : Route handler for updating a tour
  */
 
-export const updateTour = (req, res) => {
-  //   const id = req.params.id * 1;
-  //   const tour = tours.find((item) => item.id === id);
+export const updateTour = async (req, res) => {
+  try {
+    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
-  //   if (!tour) {
-  //     return res.status(404).json({
-  //       status: 'fail',
-  //       message: 'Invalid tour',
-  //     });
-  //   }
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tours: 'Tour updated successfully',
-    },
-  });
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour: tour,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      message: err,
+    });
+  }
 };
 
 /**
  * deleteTour : Route handler for deleting a tour
  */
 
-export const deleteTour = (req, res) => {
-  //   const id = req.params.id * 1;
-  //   const tour = tours.find((item) => item.id === id);
+export const deleteTour = async (req, res) => {
+  try {
+    await Tour.findByIdAndDelete(req.params.id);
 
-  //   if (!tour) {
-  //     return res.status(404).json({
-  //       status: 'fail',
-  //       message: 'Invalid tour',
-  //     });
-  //   }
-
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  });
+    res.status(204).json({
+      status: 'success',
+      data: null,
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      message: err,
+    });
+  }
 };

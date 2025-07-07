@@ -17,7 +17,7 @@ const router = express.Router();
  *
  * In param middleware we have 4 parameters
  */
-router.param('id', checkTourId);
+// router.param('id', checkTourId);
 
 router.route('/').get(getAllTours).post(checkBody, createTour);
 router.route('/:id').get(getTour).patch(updateTour).delete(deleteTour);
