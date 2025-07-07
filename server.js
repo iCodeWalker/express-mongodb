@@ -51,41 +51,6 @@ mongoose.connect(DB).then((connectionObj) => {
  *
  */
 
-/**
- * Schema
- */
-
-const tourSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'A Tour must have a name'],
-    unique: true,
-  },
-  rating: { type: Number, default: 4.5 },
-  price: { type: Number, required: [true, 'A Tour must have a price'] },
-});
-
-/**
- * Creating model out of schema
- */
-const Tour = mongoose.model('Tour', tourSchema);
-
-/**
- * Creating document from model
- */
-const testTour = new Tour({
-  name: 'Test tour 11',
-  rating: 4.6,
-  price: 500,
-});
-
-testTour
-  .save()
-  .then((doc) => {
-    console.log(doc);
-  })
-  .catch((err) => [console.error('ERROR', err)]);
-
 const port = process.env.PORT || 5000;
 /**
  * Listening

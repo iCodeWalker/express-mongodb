@@ -1,18 +1,19 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import Tour from '../models/tourModel.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 /**
  *
  * Creating separate Route handlers
  */
 
-const tours = JSON.parse(
-  fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
-);
+// const tours = JSON.parse(
+//   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
+// );
 
 /**
  * checkBody : Check body middleware
@@ -33,15 +34,15 @@ export const checkBody = (req, res, next, value) => {
  */
 
 export const checkTourId = (req, res, next, value) => {
-  const id = value * 1;
-  const tour = tours.find((item) => item.id === id);
+  // const id = value * 1;
+  // const tour = tours.find((item) => item.id === id);
 
-  if (!tour) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid tour',
-    });
-  }
+  // if (!tour) {
+  return res.status(404).json({
+    status: 'fail',
+    message: 'Invalid tour',
+  });
+  // }
   next();
 };
 
@@ -52,8 +53,6 @@ export const getAllTours = (req, res) => {
   console.log(req.requestTime);
   res.status(200).json({
     status: 'success',
-    requestedAt: req.requestTime,
-    data: { tours: tours },
   });
 };
 
@@ -67,8 +66,8 @@ export const getTour = (req, res) => {
    */
   // console.log(req.params)
 
-  const id = req.params.id * 1;
-  const tour = tours.find((item) => item.id === id);
+  // const id = req.params.id * 1;
+  // const tour = tours.find((item) => item.id === id);
 
   //   if (!tour) {
   //     return res.status(404).json({
@@ -77,32 +76,34 @@ export const getTour = (req, res) => {
   //     });
   //   }
 
-  res.status(200).json({ status: 'success', data: { tours: tour } });
+  res.status(200).json({ status: 'success' });
 };
 
 /**
  * createTour : Route handler for creating a tour
  */
 
-export const createTour = (req, res) => {
-  // console.log(req.body);
-  const newId = tours[tours.length - 1].id + 1;
-  const newTour = Object.assign({ id: newId }, req.body);
+export const createTour = async (req, res) => {
+  try {
+    // ### In this method we call the save method on the document ###
+    // const newTour = new Tour({})
+    // newTour.save()
+    // ### we can also create a tour using .create() method directly on the Tour model ####
 
-  tours.push(newTour);
+    const newTour = await Tour.create(req.body);
 
-  fs.writeFile(
-    `${__dirname}/../dev-data/data/tours-simple.json`,
-    JSON.stringify(tours),
-    (err) => {
-      res.status(201).json({
-        status: 'success',
-        data: {
-          tour: newTour,
-        },
-      });
-    }
-  );
+    res.status(201).json({
+      status: 'success',
+      data: {
+        tour: newTour,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      message: err,
+    });
+  }
 };
 
 /**
