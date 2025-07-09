@@ -41,7 +41,52 @@ export const checkTourId = (req, res, next, value) => {
  */
 export const getAllTours = async (req, res) => {
   try {
-    const tours = await Tour.find();
+    /**
+     * Get all tours
+     */
+    // const tours = await Tour.find();
+
+    /**
+     * Filtering:
+     *
+     * query string :Ex ?duration=5&difficulty=easy
+     */
+
+    /**
+     * Quering using filter object
+     */
+
+    // const tours = await Tour.find({ duratiion: 5, difficulty: 'easy' });
+
+    const queryObj = { ...req.query };
+
+    // exlcluded fields
+    const excludeFields = ['page', 'sort', 'limit', 'fields'];
+
+    // deleting keys that is not needed in the query object for filtering
+    excludeFields.forEach((item) => {
+      delete queryObj[item];
+    });
+
+    // const tours = await Tour.find(req.query);
+    // const tours = await Tour.find(queryObj);
+
+    // 1. create a query
+    const query = Tour.find(queryObj);
+
+    // 2. execute a query
+    const tours = await query;
+
+    /**
+     * Quering using mongoose methods
+     *
+     */
+
+    // const tours = await Tour.find()
+    //   .where('duration')
+    //   .equals(5)
+    //   .where('difficulty')
+    //   .equals('easy');
 
     res.status(200).json({
       status: 'success',
