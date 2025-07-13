@@ -89,7 +89,19 @@ export const getAllTours = async (req, res) => {
     });
 
     // 1. create a query
-    const query = Tour.find(JSON.parse(queryStr));
+    let query = Tour.find(JSON.parse(queryStr));
+
+    /**
+     * 2) Sorting
+     */
+
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' ');
+      // mongodb query : sorting using multiple variables sort(price ratingsAverage)
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort('-createdAt');
+    }
 
     // 2. execute a query
     const tours = await query;
