@@ -2,6 +2,20 @@ import { json } from 'stream/consumers';
 import Tour from '../models/tourModel.js';
 
 /**
+ * Aliasing
+ */
+
+export const aliasTopTours = (req, res, next) => {
+  // #### query parameter is immutable now #####
+  // req.query.limit = '5';
+  // req.query.sort = '-ratingAverage,price';
+  // req.query.fields = 'name,price,ratingAverage,summary,difficulty';
+  req.url =
+    '/?sort=-ratingsAverage,price&fields=ratingsAverage,price,name,difficulty,summary&limit=5';
+  next();
+};
+
+/**
  *
  * Creating separate Route handlers
  */
