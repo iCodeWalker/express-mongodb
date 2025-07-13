@@ -37,9 +37,11 @@ const tourSchema = new mongoose.Schema({
     required: [true, 'A Tour must have a cover image'],
   },
   images: [String],
+  // ######### We can also limit the fields in schema #########
   createdAt: {
     type: Date,
     default: Date.now(),
+    select: false,
   },
   startDates: [Date],
 });
