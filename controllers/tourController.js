@@ -1,5 +1,5 @@
-import { json } from 'stream/consumers';
 import Tour from '../models/tourModel.js';
+import APIFeatures from '../utils/apiFeatures.js';
 
 /**
  * Aliasing
@@ -73,15 +73,15 @@ export const getAllTours = async (req, res) => {
 
     // const tours = await Tour.find({ duratiion: 5, difficulty: 'easy' });
 
-    const queryObj = { ...req.query };
+    // const queryObj = { ...req.query };
 
     // exlcluded fields
-    const excludeFields = ['page', 'sort', 'limit', 'fields'];
+    // const excludeFields = ['page', 'sort', 'limit', 'fields'];
 
     // deleting keys that is not needed in the query object for filtering
-    excludeFields.forEach((item) => {
-      delete queryObj[item];
-    });
+    // excludeFields.forEach((item) => {
+    //   delete queryObj[item];
+    // });
 
     // const tours = await Tour.find(req.query);
     // const tours = await Tour.find(queryObj);
@@ -96,38 +96,38 @@ export const getAllTours = async (req, res) => {
      * we are going to replace gte with $gte, gt with $gt and similar
      */
 
-    let queryStr = JSON.stringify(queryObj);
+    // let queryStr = JSON.stringify(queryObj);
 
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (matchedWord) => {
-      return `$${matchedWord}`;
-    });
+    // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (matchedWord) => {
+    //   return `$${matchedWord}`;
+    // });
 
     // 1. create a query
-    let query = Tour.find(JSON.parse(queryStr));
+    // let query = Tour.find(JSON.parse(queryStr));
 
     /**
      * 2) Sorting
      */
 
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(',').join(' ');
-      // mongodb query : sorting using multiple variables sort(price ratingsAverage)
-      query = query.sort(sortBy);
-    } else {
-      query = query.sort('-createdAt');
-    }
+    // if (req.query.sort) {
+    //   const sortBy = req.query.sort.split(',').join(' ');
+    //   // mongodb query : sorting using multiple variables sort(price ratingsAverage)
+    //   query = query.sort(sortBy);
+    // } else {
+    //   query = query.sort('-createdAt');
+    // }
 
     /**
      * 3) Field limiting
      */
-    if (req.query.fields) {
-      const fields = req.query.fields.split(',').join(' ');
-      //query = query.select('name duration price)
-      query = query.select(fields);
-    } else {
-      // add - to exclude the field
-      query = query.select('-__v');
-    }
+    // if (req.query.fields) {
+    //   const fields = req.query.fields.split(',').join(' ');
+    //   //query = query.select('name duration price)
+    //   query = query.select(fields);
+    // } else {
+    //   // add - to exclude the field
+    //   query = query.select('-__v');
+    // }
 
     /**
      * 4) Pagination
@@ -139,22 +139,30 @@ export const getAllTours = async (req, res) => {
     // page 1 = 1-10, page 2 = 11-20, page 3 = 21-30
     // query = query.skip(10).limit(10)  skips 10 results before quering and sends 10 data objects
 
-    const page = req.query.page * 1 || 1;
-    const limit = req.query.limit * 1 || 100;
+    // const page = req.query.page * 1 || 1;
+    // const limit = req.query.limit * 1 || 100;
 
-    const skipValue = (page - 1) * limit;
+    // const skipValue = (page - 1) * limit;
 
-    query = query.skip(skipValue).limit(limit);
+    // query = query.skip(skipValue).limit(limit);
 
-    if (req.query.page) {
-      const numberOfTours = await Tour.countDocuments(); // returns number of documents
-      if (skipValue >= numberOfTours) {
-        throw new Error('The page does not exists');
-      }
-    }
+    // if (req.query.page) {
+    //   const numberOfTours = await Tour.countDocuments(); // returns number of documents
+    //   if (skipValue >= numberOfTours) {
+    //     throw new Error('The page does not exists');
+    //   }
+    // }
+
+    // ################# Features #################
+    const features = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .pagination();
 
     // 2. execute a query
-    const tours = await query;
+    // const tours = await query;
+    const tours = await features.query;
 
     /**
      * Quering using mongoose methods
@@ -175,6 +183,7 @@ export const getAllTours = async (req, res) => {
       },
     });
   } catch (err) {
+    console.log(err, 'features');
     res.status(400).json({
       status: 'fail',
       message: err,
