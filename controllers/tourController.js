@@ -1,3 +1,4 @@
+import { json } from 'stream/consumers';
 import Tour from '../models/tourModel.js';
 
 /**
@@ -71,8 +72,24 @@ export const getAllTours = async (req, res) => {
     // const tours = await Tour.find(req.query);
     // const tours = await Tour.find(queryObj);
 
+    /**
+     * Advance quering
+     * Quering for <= or >= query values
+     *
+     * Mongodb query : { difficulty: easy, duration: { $gte : 5 }}
+     * Query in url : 127.0.0.1:5000/api/v1/tours?duration[gte]=5&difficulty=easy&page=2&limit=10&sort=1
+     *
+     * we are going to replace gte with $gte, gt with $gt and similar
+     */
+
+    let queryStr = JSON.stringify(queryObj);
+
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (matchedWord) => {
+      return `$${matchedWord}`;
+    });
+
     // 1. create a query
-    const query = Tour.find(queryObj);
+    const query = Tour.find(JSON.parse(queryStr));
 
     // 2. execute a query
     const tours = await query;

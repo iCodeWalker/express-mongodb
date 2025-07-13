@@ -14,6 +14,12 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 /**
+ * allows us to use nested objects in the URL
+ *
+ * To get nested req.query object we set this
+ */
+app.set('query parser', 'extended');
+/**
  * 3rd party middleware morgan : used to log requests
  */
 
