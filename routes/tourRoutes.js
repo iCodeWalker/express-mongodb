@@ -10,6 +10,7 @@ import {
   checkBody,
   aliasTopTours,
   getTourStats,
+  getMonthlyPlan,
 } from '../controllers/tourController.js';
 
 const router = express.Router();
@@ -32,6 +33,10 @@ router.route('/top-5-tours').get(aliasTopTours, getAllTours);
  * Aggregate route : route for getting stats of tours
  */
 router.route('/tour-stats').get(getTourStats);
+/**
+ * Unwinding and matching
+ */
+router.route('/monthly-plan/:year').get(getMonthlyPlan);
 
 router.route('/').get(getAllTours).post(checkBody, createTour);
 router.route('/:id').get(getTour).patch(updateTour).delete(deleteTour);

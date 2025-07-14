@@ -332,7 +332,7 @@ export const getTourStats = async (req, res) => {
       {
         $sort: {
           // Here we have to use the name that we have created in the above stage
-          // 1 for asscending
+          // 1 for asscending , -1 for descending
           averagePrice: 1,
         },
       },
@@ -347,6 +347,75 @@ export const getTourStats = async (req, res) => {
       status: 'success',
       data: {
         tour: stats,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      message: err,
+    });
+  }
+};
+
+/**
+ * Unwinding and projecting
+ *
+ * Unwind : It deconstruct an array field from the documents and then output one document for each elemnt
+ * of the array.
+ * Now has one document for each of the 'startDates'
+ */
+
+export const getMonthlyPlan = async (req, res) => {
+  try {
+    const year = req.params.year * 1;
+
+    const plan = await Tour.aggregate([
+      {
+        $unwind: '$startDates',
+      },
+      {
+        $match: {
+          startDates: {
+            $gte: new Date(`${year}-01-01`),
+            $lte: new Date(`${year}-12-31`),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $month: '$startDates' },
+          numberOfTours: {
+            $sum: 1,
+          },
+          tours: {
+            $push: '$name',
+          },
+        },
+      },
+      {
+        $addFields: {
+          month: '$_id',
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+        },
+      },
+      {
+        $sort: {
+          numberOfTours: -1,
+        },
+      },
+      {
+        $limit: 12, // number of output data
+      },
+    ]);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour: plan,
       },
     });
   } catch (err) {
