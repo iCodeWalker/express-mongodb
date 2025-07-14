@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import slugify from 'slugify';
 /**
  * Schema
  */
@@ -10,6 +11,9 @@ const tourSchema = new mongoose.Schema(
       required: [true, 'A Tour must have a name'],
       unique: true,
       trim: true,
+    },
+    slug: {
+      type: String,
     },
     duration: {
       type: Number,
@@ -64,6 +68,45 @@ const tourSchema = new mongoose.Schema(
 
 tourSchema.virtual('durationInWeeks').get(function () {
   return this.duration / 7;
+});
+
+/**
+ * In Document middleware, just like express middleware
+ * We can perform something between the two events
+ *
+ * Ex: Each time a document is saved, we can run a function between the save command and the actual saving of
+ * the document.
+ *
+ * We can decide where to run the middleware before or after a certain event.
+ *
+ * Four types of middleware in mongoose
+ * 1. document.
+ * 2. query.
+ * 3. aggregate
+ * 4. model
+ *
+ */
+
+// 1. document middleware : a middleware that can act on a currently processed document.
+// This pre will make the middleware run before the actual event
+
+/** Pre middleware */
+// #### Pre save hook ####
+tourSchema.pre('save', function (next) {
+  // This function will be called before the document is saved in the database.
+  // ###### Creating a slug ######
+  this.slug = slugify(this.name, { lower: true });
+  next();
+});
+
+/** Post middleware */
+/**
+ * Post middleware funtions are executed when all the pre middleware functions are completed
+ */
+
+tourSchema.post('save', function (doc, next) {
+  // console.log(doc);
+  next();
 });
 
 /**
