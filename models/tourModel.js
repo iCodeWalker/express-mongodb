@@ -145,6 +145,16 @@ tourSchema.post(/^find/, function (docs, next) {
   next();
 });
 
+// 3. Aggregation middleware : before and after the aggregation is executed
+// ### aggregate-hook
+tourSchema.pre('aggregate', function (next) {
+  // this points to current aggregation object
+  // console.log(this.pipeline());
+
+  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+  next();
+});
+
 /**
  * Creating model out of schema
  */
