@@ -9,6 +9,7 @@ import {
   checkTourId,
   checkBody,
   aliasTopTours,
+  getTourStats,
 } from '../controllers/tourController.js';
 
 const router = express.Router();
@@ -26,6 +27,11 @@ const router = express.Router();
  * manupulating the req.query object using middleware
  */
 router.route('/top-5-tours').get(aliasTopTours, getAllTours);
+
+/**
+ * Aggregate route : route for getting stats of tours
+ */
+router.route('/tour-stats').get(getTourStats);
 
 router.route('/').get(getAllTours).post(checkBody, createTour);
 router.route('/:id').get(getTour).patch(updateTour).delete(deleteTour);

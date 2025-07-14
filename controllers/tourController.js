@@ -285,3 +285,74 @@ export const deleteTour = async (req, res) => {
     });
   }
 };
+
+/**
+ * Aggregation pipeline
+ */
+
+export const getTourStats = async (req, res) => {
+  try {
+    // It's just like doing a regular query, but the difference is, in aggregation we can manipulate the data
+    // in couple of different stages
+
+    // we define stages inside the array of 'aggregate' method
+
+    const stats = await Tour.aggregate([
+      {
+        $match: { ratingsAverage: { $gte: 4.5 } },
+      },
+      {
+        $group: {
+          // _id: null, // For having stats of all the data/tours
+          // _id: '$difficulty',
+          // _id: '$ratingsAverage',
+          _id: {
+            $toUpper: '$difficulty',
+          },
+          numberOfTours: {
+            $sum: 1,
+          },
+          numberOfRating: {
+            $sum: '$ratingsQuantity',
+          },
+          averageRating: {
+            $avg: '$ratingsAverage',
+          },
+          averagePrice: {
+            $avg: '$price',
+          },
+          minPrice: {
+            $min: '$price',
+          },
+          maxPrice: {
+            $max: '$price',
+          },
+        },
+      },
+      {
+        $sort: {
+          // Here we have to use the name that we have created in the above stage
+          // 1 for asscending
+          averagePrice: 1,
+        },
+      },
+      // {
+      //   $match: {
+      //     _id: { $ne: 'EASY' },
+      //   },
+      // },
+    ]);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour: stats,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      message: err,
+    });
+  }
+};
