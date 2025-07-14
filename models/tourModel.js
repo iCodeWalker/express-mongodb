@@ -49,6 +49,10 @@ const tourSchema = new mongoose.Schema(
       select: false,
     },
     startDates: [Date],
+    secretTour: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     /** Schema options */
@@ -91,9 +95,13 @@ tourSchema.virtual('durationInWeeks').get(function () {
 // This pre will make the middleware run before the actual event
 
 /** Pre middleware */
-// #### Pre save hook ####
+// #### Pre-save hook ####
+
+// ##### will work for save() and create() but not for insertMany()
 tourSchema.pre('save', function (next) {
   // This function will be called before the document is saved in the database.
+  // ## "this" keyowrd points to the currently processed document
+
   // ###### Creating a slug ######
   this.slug = slugify(this.name, { lower: true });
   next();
@@ -106,6 +114,34 @@ tourSchema.pre('save', function (next) {
 
 tourSchema.post('save', function (doc, next) {
   // console.log(doc);
+  next();
+});
+
+// 2. query middleware : allows us to run functions before or after a query is executed
+/** Pre-find hook */
+
+// #### This pre hook will run for all the strings that starts with "find"
+tourSchema.pre(/^find/, function (next) {
+  // ## "this" keyowrd points to the current query
+  this.find({ secretTour: { $ne: true } });
+  this.start = Date.now();
+  next();
+});
+
+// tourSchema.pre('findOne', function (next) {
+//   // ## "this" keyowrd points to the current query
+//   this.find({ secretTour: { $ne: true } });
+//   next();
+// });
+//
+
+/**
+ * post middleware for find
+ */
+
+tourSchema.post(/^find/, function (docs, next) {
+  console.log(`Query took: ${Date.now() - this.start} ms`);
+  // console.log(docs)
   next();
 });
 
