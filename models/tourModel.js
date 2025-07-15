@@ -1,7 +1,15 @@
 import mongoose from 'mongoose';
 import slugify from 'slugify';
+import validator from 'validator';
 /**
  * Schema
+ */
+
+/**
+ * validation : checking if the entered value are in the right format and users have entered the right type of
+ * value in the fields.
+ *
+ * sanitisation : to ensure that the inputed data is clean, as no malicious code is injected into our database.
  */
 
 const tourSchema = new mongoose.Schema(
@@ -11,6 +19,9 @@ const tourSchema = new mongoose.Schema(
       required: [true, 'A Tour must have a name'],
       unique: true,
       trim: true,
+      maxLength: [40, 'A tour name must have less or equal than 40 characters'],
+      minLength: [10, 'A tour name must have more or equal than 10 characters'],
+      // validate: [validator.isAlpha, 'Tour name should only contain alphabets'],
     },
     slug: {
       type: String,
@@ -26,11 +37,33 @@ const tourSchema = new mongoose.Schema(
     difficulty: {
       type: String,
       required: [true, 'A Tour must have a difficulty'],
+      enum: {
+        values: ['easy', 'medium', 'difficult'],
+        message: 'Difficulty should be one of the: easy, medium, difficult',
+      },
     },
-    ratingsAverage: { type: Number, default: 4.5 },
+    ratingsAverage: {
+      type: Number,
+      default: 4.5,
+      min: [1, 'Rating msut be above 1.0'],
+      max: [5, 'Rating must be below 5.0'],
+    },
     ratingsQuantity: { type: Number, default: 0 },
     price: { type: Number, required: [true, 'A Tour must have a price'] },
-    priceDiscount: { type: Number },
+    priceDiscount: {
+      type: Number,
+      validate: {
+        validator: function (inputValue) {
+          /**
+           * A custom validator that checks if the price discount is greater than or equal to the price
+           *
+           * this points to the new document that we are going to create, so it will not work in case of update
+           */
+          return inputValue < this.price;
+        },
+        message: 'Dicount price ({VALUE}) should be less than price',
+      },
+    },
     summary: {
       type: String,
       required: [true, 'A Tour must have a description'],
@@ -97,7 +130,7 @@ tourSchema.virtual('durationInWeeks').get(function () {
 /** Pre middleware */
 // #### Pre-save hook ####
 
-// ##### will work for save() and create() but not for insertMany()
+// ##### will work for save() and create() but not for insertMany() or update()
 tourSchema.pre('save', function (next) {
   // This function will be called before the document is saved in the database.
   // ## "this" keyowrd points to the currently processed document
