@@ -49,10 +49,10 @@ app.use(express.static(`${__dirname}/public`));
  * Creating custom middleware
  */
 
-app.use((req, res, next) => {
-  console.log('From middleware');
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log('From middleware');
+//   next();
+// });
 
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
@@ -289,6 +289,18 @@ app.use('/api/v1/tours', tourRouter);
 // userRouter.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
 
 app.use('/api/v1/users', userRouter);
+/**
+ * Handling Unhandled routes
+ *
+ * all -> points to all http methods. Ex: get,post,put,patch,delete etc
+ */
+
+app.all('/{*any}', (req, res, next) => {
+  res.status(404).json({
+    status: 'fail',
+    message: `Can't find ${req.originalUrl}`,
+  });
+});
 
 export default app;
 
