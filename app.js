@@ -296,9 +296,37 @@ app.use('/api/v1/users', userRouter);
  */
 
 app.all('/{*any}', (req, res, next) => {
-  res.status(404).json({
-    status: 'fail',
-    message: `Can't find ${req.originalUrl}`,
+  // res.status(404).json({
+  //   status: 'fail',
+  //   message: `Can't find ${req.originalUrl}`,
+  // });
+
+  const error = new Error(`Can't find ${req.originalUrl} `);
+  error.status = 'fail';
+  error.statusCode = 404;
+  /** Whenever something is passed in next() as an argument, the express will treat it as if there is an error
+   *
+   * Express will than skio all the remaining middleware, and send the error we passed in to the
+   * global error handling middleware
+   */
+  next(error);
+});
+
+/**
+ * Global error handling
+ *
+ * Error handling middleware, it has 4 args (err, req, res, next)
+ *
+ * And express will automatically recognise it as an error handling middleware
+ */
+
+app.use((err, req, res, next) => {
+  err.statusCode = err.statusCode || 500;
+  err.status = err.status || 'error';
+
+  res.status(err.statusCode).json({
+    status: err.status,
+    message: err.message,
   });
 });
 
