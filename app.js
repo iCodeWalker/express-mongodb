@@ -8,6 +8,9 @@ import morgan from 'morgan';
 import tourRouter from './routes/tourRoutes.js';
 import userRouter from './routes/userRoutes.js';
 
+import AppError from './utils/appError.js';
+import globalErrorHandler from './controllers/errorController.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -301,15 +304,17 @@ app.all('/{*any}', (req, res, next) => {
   //   message: `Can't find ${req.originalUrl}`,
   // });
 
-  const error = new Error(`Can't find ${req.originalUrl} `);
-  error.status = 'fail';
-  error.statusCode = 404;
+  // const error = new Error(`Can't find ${req.originalUrl} `);
+  // error.status = 'fail';
+  // error.statusCode = 404;
+
   /** Whenever something is passed in next() as an argument, the express will treat it as if there is an error
    *
    * Express will than skio all the remaining middleware, and send the error we passed in to the
    * global error handling middleware
    */
-  next(error);
+  // next(error);
+  next(new AppError(`Can't find ${req.originalUrl}`, 404));
 });
 
 /**
@@ -320,15 +325,17 @@ app.all('/{*any}', (req, res, next) => {
  * And express will automatically recognise it as an error handling middleware
  */
 
-app.use((err, req, res, next) => {
-  err.statusCode = err.statusCode || 500;
-  err.status = err.status || 'error';
+// app.use((err, req, res, next) => {
+//   err.statusCode = err.statusCode || 500;
+//   err.status = err.status || 'error';
 
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
-  });
-});
+//   res.status(err.statusCode).json({
+//     status: err.status,
+//     message: err.message,
+//   });
+// });
+
+app.use(globalErrorHandler);
 
 export default app;
 
