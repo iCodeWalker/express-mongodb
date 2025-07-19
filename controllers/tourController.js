@@ -1,5 +1,6 @@
 import Tour from '../models/tourModel.js';
 import APIFeatures from '../utils/apiFeatures.js';
+import AppError from '../utils/appError.js';
 import catchAsyncError from '../utils/catchAsyncError.js';
 
 /**
@@ -196,9 +197,13 @@ export const getAllTours = async (req, res) => {
  * getTour : Route handler for getting a single tour
  */
 
-export const getTour = catchAsyncError(async (req, res) => {
+export const getTour = catchAsyncError(async (req, res, next) => {
   const tour = await Tour.findById(req.params.id);
   // const tour = await Tour.findById(req.params.id);
+
+  if (!tour) {
+    return next(new AppError('No tour found', 404));
+  }
 
   res.status(200).json({
     status: 'success',
@@ -273,11 +278,15 @@ export const createTour = catchAsyncError(async (req, res, next) => {
  * updateTour : Route handler for updating a tour
  */
 
-export const updateTour = catchAsyncError(async (req, res) => {
+export const updateTour = catchAsyncError(async (req, res, next) => {
   const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
   });
+
+  if (!tour) {
+    return next(new AppError('No tour found', 404));
+  }
 
   res.status(200).json({
     status: 'success',
@@ -312,8 +321,12 @@ export const updateTour = catchAsyncError(async (req, res) => {
  * deleteTour : Route handler for deleting a tour
  */
 
-export const deleteTour = catchAsyncError(async (req, res) => {
-  await Tour.findByIdAndDelete(req.params.id);
+export const deleteTour = catchAsyncError(async (req, res, next) => {
+  const tour = await Tour.findByIdAndDelete(req.params.id);
+
+  if (!tour) {
+    return next(new AppError('No tour found', 404));
+  }
 
   res.status(204).json({
     status: 'success',
