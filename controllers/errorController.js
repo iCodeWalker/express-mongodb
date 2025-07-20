@@ -6,6 +6,13 @@
  * And express will automatically recognise it as an error handling middleware
  */
 
+import AppError from '../utils/appError.js';
+
+const handleCastErrorDB = (err) => {
+  const message = `Invalid ${err.path}: ${err.value}`;
+  return new AppError(message, 400);
+};
+
 const sendErrorForDev = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -37,7 +44,12 @@ const globalErrorHandler = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     sendErrorForDev(err, res);
   } else if (process.env.NODE_ENV === 'production') {
-    sendErrorForProd(err, res);
+    let error = { ...err };
+
+    if (err.name === 'CastError') {
+      error = handleCastErrorDB(error);
+    }
+    sendErrorForProd(error, res);
   }
 };
 
