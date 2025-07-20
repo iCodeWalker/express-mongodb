@@ -7,8 +7,11 @@ import {
   updateUser,
   deleteUser,
 } from '../controllers/userController.js';
+import { signUp } from '../controllers/authController.js';
 
 const router = express.Router();
+
+router.route('/signup').post(signUp);
 
 router.route('/').get(getAllUsers).post(createUser);
 router.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
