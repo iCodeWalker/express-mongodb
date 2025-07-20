@@ -4,6 +4,16 @@ import dotenv from 'dotenv';
  *
  * We have to configure the env file at the top so that it can be accessed in the below files.
  */
+/**
+ * Uncaught exceptions
+ */
+
+process.on('uncaughtException', (err) => {
+  console.log(err, 'uncaughtException');
+  // server.close(() => {
+  process.exit(1); // 0 for success and 1 for uncaught exceptions
+  // });
+});
 
 dotenv.config({ path: './config.env' });
 
@@ -71,12 +81,10 @@ const server = app.listen(port, () => {
  * Handled any unhanled promise rejection that we might not catch somewhere in the application
  */
 
-process.on(
-  'unhandledRejection'((err) => {
-    // console.log(err);
-    // first close the server.
-    server.close(() => {
-      process.exit(1); // 0 for success and 1 for uncaught exceptions
-    });
-  })
-);
+process.on('unhandledRejection', (err) => {
+  console.log(err, 'unhandledRejection');
+  // first close the server.
+  server.close(() => {
+    process.exit(1); // 0 for success and 1 for uncaught exceptions
+  });
+});
