@@ -33,10 +33,15 @@ const DB = process.env.DATABASE.replace(
   '<db_password>',
   process.env.DATABASE_PASSWORD
 );
-mongoose.connect(DB).then((connectionObj) => {
-  // console.log(connectionObj.connection);
-  // console.log('DB connection successfull');
-});
+mongoose
+  .connect(DB)
+  .then((connectionObj) => {
+    // console.log(connectionObj.connection);
+    // console.log('DB connection successfull');
+  })
+  .catch((err) => {
+    console.log('ERROR', err);
+  });
 
 /**
  * mongoose is all about models, and model is like a blueprint that we use to create documents, so it's like
@@ -55,6 +60,23 @@ const port = process.env.PORT || 5000;
 /**
  * Listening
  */
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`Started listening on port ${port}`);
 });
+
+/**
+ * Each time there is an unhandled rejection somewhere in our application, the process object will emit
+ * an object called unhandled rejection, so we can subscribe to that event.
+ *
+ * Handled any unhanled promise rejection that we might not catch somewhere in the application
+ */
+
+process.on(
+  'unhandledRejection'((err) => {
+    // console.log(err);
+    // first close the server.
+    server.close(() => {
+      process.exit(1); // 0 for success and 1 for uncaught exceptions
+    });
+  })
+);
