@@ -34,6 +34,9 @@ const userSchema = new mongoose.Schema({
       message: 'Passwords are not same',
     },
   },
+  passwordChangedAt: {
+    type: Date,
+  },
 });
 
 userSchema.pre('save', async function (next) {
@@ -61,6 +64,31 @@ userSchema.methods.correctPassword = async function (
 ) {
   // this keyword points to current document
   return await bcrypt.compare(enteredPassword, userPassword);
+};
+
+/**
+ * Check if user has changed the password
+ *
+ */
+
+userSchema.methods.changedPassword = function (JWTTimestamp) {
+  /** Id the "passwordChangedAt" key does not exists than it means that the user has never changed
+   * the password
+   *
+   * the "passwordChangedAt" key will exists only when a user changes it's password
+   *
+   * False means not changed
+   */
+  if (this.passwordChangedAt) {
+    const passwordChangedTimeStamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+    // console.log(passwordChangedTimeStamp, JWTTimestamp, 'passwordChangedAt');
+    return JWTTimestamp < passwordChangedTimeStamp;
+  }
+
+  return false;
 };
 
 const User = mongoose.model('User', userSchema);

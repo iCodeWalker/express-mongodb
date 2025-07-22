@@ -8,6 +8,18 @@
 
 import AppError from '../utils/appError.js';
 
+/** for invalid jwt errors */
+const handleJWTError = (err) => {
+  const message = `Invalid token`;
+  return new AppError(message, 401);
+};
+
+/** Jwt expired error */
+const handleJWTExpiredError = (err) => {
+  const message = `Your token has expired. Please login again.`;
+  return new AppError(message, 401);
+};
+
 /** for invalid ids */
 const handleCastErrorDB = (err) => {
   const message = `Invalid ${err.path}: ${err.value}`;
@@ -77,6 +89,14 @@ const globalErrorHandler = (err, req, res, next) => {
     // ### validation error ###
     if (err._message.includes('validation')) {
       error = handleValidationErrorDB(error);
+    }
+
+    // ### Json web token error ###
+    if (err.name === 'JsonWebTokenError') {
+      error = handleJWTError(error);
+    }
+    if (err.name === 'TokenExpiredError') {
+      error = handleJWTExpiredError(error);
     }
     sendErrorForProd(error, res);
   }

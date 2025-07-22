@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { promisify } from 'util';
 
 import User from '../models/userModel.js';
 import catchAsyncError from '../utils/catchAsyncError.js';
@@ -16,6 +17,7 @@ export const signUp = catchAsyncError(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     confirmPassword: req.body.confirmPassword,
+    passwordChangedAt: req.body.passwordChangedAt,
   });
 
   /** creating a jwt token and sending back to the user */
@@ -75,4 +77,62 @@ export const signIn = catchAsyncError(async (req, res, next) => {
     status: 'success',
     token: token,
   });
+});
+
+/**
+ * Middleware function for protecting routes
+ *
+ * Allowing only logged in user to access this routes
+ */
+
+export const protectedRoutes = catchAsyncError(async (req, res, next) => {
+  /**
+   * 1. Get the token and check if it exists
+   *
+   * 2. Validate the token
+   *
+   * 3. Check if user still exists
+   *
+   * 4. Check if user changed password after the jwt token was issued
+   */
+
+  /** 1. Get the token and check if it exists */
+  let token = '';
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    token = req.headers.authorization.split(' ')?.[1];
+  }
+
+  if (!token) {
+    return next(new AppError('You are not logged in', 401));
+  }
+
+  /** 2. Validating the token */
+
+  const decodedData = await promisify(jwt.verify)(
+    token,
+    process.env.JWT_SECRET
+  );
+
+  /**
+   *  3. Check if user still exists
+   *  Checking if the id we get in the response of verifing the token exists or not
+   */
+  const user = await User.findById(decodedData.id);
+
+  if (!user) {
+    return next(new AppError('The token is not valid', 401));
+  }
+
+  /** 4. Check if user has changed the password */
+  if (user.changedPassword(decodedData.iat)) {
+    return next(new AppError('Authorization failed. Please login again.', 401));
+  }
+
+  req.user = user;
+
+  /** Now can access the protected routes */
+  next();
 });
