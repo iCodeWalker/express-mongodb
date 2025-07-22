@@ -18,6 +18,7 @@ export const signUp = catchAsyncError(async (req, res, next) => {
     password: req.body.password,
     confirmPassword: req.body.confirmPassword,
     passwordChangedAt: req.body.passwordChangedAt,
+    role: req.body.role,
   });
 
   /** creating a jwt token and sending back to the user */
@@ -131,8 +132,31 @@ export const protectedRoutes = catchAsyncError(async (req, res, next) => {
     return next(new AppError('Authorization failed. Please login again.', 401));
   }
 
+  // ### This req.user is passed to the next middlware ###
   req.user = user;
 
   /** Now can access the protected routes */
   next();
 });
+
+/**
+ *
+ * Authentication : validating a user.
+ *
+ * Authorization : verifing if a user has permission to perform certain tasks, or to interact with certain
+ * resources.
+ */
+
+export const accessRestrictedTo = (...roles) => {
+  return (req, res, next) => {
+    // ### roles in an array ex: ['admin', 'lead']
+
+    if (!roles.includes(req.user.role)) {
+      // 403 -> forbidden
+      return next(
+        new AppError('You do not have permission to perform this action', 403)
+      );
+    }
+    next();
+  };
+};
