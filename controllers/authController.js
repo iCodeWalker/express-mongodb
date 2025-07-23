@@ -4,6 +4,7 @@ import { promisify } from 'util';
 import User from '../models/userModel.js';
 import catchAsyncError from '../utils/catchAsyncError.js';
 import AppError from '../utils/appError.js';
+import sendEmail from '../utils/email.js';
 
 const createToken = (id) => {
   return jwt.sign({ id: id }, process.env.JWT_SECRET, {
@@ -178,6 +179,35 @@ export const forgotPassword = async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   /** 3. Send back the token to email */
+  const resetUrl = `${req.protocol}://${req.get(
+    'host'
+  )}/api/v1/users/reset-password/${resetToken}`;
+
+  const message = `Please update your password using this link: ${resetUrl}`;
+
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: 'Password reset',
+      message: message,
+    });
+
+    console.log(message, 'sendEmail====message');
+
+    res.status(200).json({
+      status: 'success',
+      message: 'Token sent to email',
+    });
+  } catch (err) {
+    user.passwordResetToken = undefined;
+    user.passwordResetExpires = undefined;
+
+    await user.save({ validateBeforeSave: false });
+
+    return next(
+      new AppError('Something went wrong. Please try again later', 500)
+    );
+  }
 };
 
 /**
