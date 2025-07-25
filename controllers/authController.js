@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { promisify } from 'util';
+import crypto from 'crypto';
 
 import User from '../models/userModel.js';
 import catchAsyncError from '../utils/catchAsyncError.js';
@@ -214,4 +215,42 @@ export const forgotPassword = async (req, res, next) => {
  * Reset password
  */
 
-export const resetPassword = (req, res, next) => {};
+export const resetPassword = catchAsyncError(async (req, res, next) => {
+  /** 1. Get user based on the token */
+
+  /** get the hased token */
+  const hasedToken = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex');
+
+  const user = await User.findOne({
+    passwordResetToken: hasedToken,
+    passwordResetExpires: { $gt: Date.now() },
+  });
+
+  /** 2. Set the new password, id token is not expired and there is a user */
+
+  if (!user) {
+    return next(new AppError('Token is invalid', 400));
+  }
+
+  user.password = req.body.password;
+  user.confirmPassword = req.body.confirmPassword;
+  /** assigned "undefined" as now we don't need these fields as they are no longer needed */
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+  await user.save();
+
+  const token = createToken(user._id);
+
+  res.status(201).json({
+    status: 'success',
+    token: token,
+  });
+
+  /** 3. Update the changedPasswordAt property for the user  */
+  /** In pre save middleware */
+
+  /** 4. Log user in */
+});

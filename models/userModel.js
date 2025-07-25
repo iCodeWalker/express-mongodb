@@ -61,6 +61,21 @@ userSchema.pre('save', async function (next) {
 });
 
 /**
+ *
+ * and modifying the changedPasswordAt
+ */
+
+userSchema.pre('save', function (next) {
+  /** If password is not changed  ||  a new document is created */
+  if (!this.isModified('password') || this.isNew) return next();
+
+  /** passwordChangedAt is asigned a value 1 sec earlier than the token created */
+  /** This ensures that the token has been created after the password has been changed */
+  this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
+/**
  * An instance method
  *
  * A method that is available on all the documents of a certain collection

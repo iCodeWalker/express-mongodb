@@ -19,7 +19,7 @@ const sendEmail = async (options) => {
     from: 'Vaibhav Kadwey <vaibhavkadwey@newme.io>',
     to: options.email,
     subject: options.subject,
-    text: options.meaage,
+    text: options.message,
     // html:<></>
   };
   /** 3. Send  the email */
