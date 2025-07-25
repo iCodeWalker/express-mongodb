@@ -254,3 +254,34 @@ export const resetPassword = catchAsyncError(async (req, res, next) => {
 
   /** 4. Log user in */
 });
+
+/** Updating user password */
+
+export const updatePassword = catchAsyncError(async (req, res, next) => {
+  /** 1. Get user */
+  const user = await User.findById(req.user._id).select('+password');
+
+  /** 2. check if old password is correct */
+  let isValidUser = await user.correctPassword(
+    req.body.currentPassword,
+    user.password
+  );
+  if (!isValidUser) {
+    return next(
+      new AppError('wrong password, please enter correct password', 401)
+    );
+  }
+
+  /** 3. If password is old correct, update the new entered password  */
+
+  user.password = req.body.password;
+  user.confirmPassword = req.body.confirmPassword;
+  await user.save();
+  /** 4. Log user in */
+  const token = createToken(user._id);
+
+  res.status(200).json({
+    status: 'success',
+    token: token,
+  });
+});
