@@ -76,3 +76,12 @@ export const updateUserData = catchAsyncError(async (req, res, next) => {
     },
   });
 });
+
+export const deleteCurrentUser = catchAsyncError(async (req, res, next) => {
+  await User.findByIdAndUpdate(req.user._id, { active: false });
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});

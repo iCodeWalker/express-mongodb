@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import validator from 'validator';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
+import { type } from 'os';
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -45,6 +46,11 @@ const userSchema = new mongoose.Schema({
   },
   passwordResetToken: String,
   passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 userSchema.pre('save', async function (next) {
@@ -72,6 +78,17 @@ userSchema.pre('save', function (next) {
   /** passwordChangedAt is asigned a value 1 sec earlier than the token created */
   /** This ensures that the token has been created after the password has been changed */
   this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
+/**
+ * query middleware
+ * */
+
+userSchema.pre('find', function (next) {
+  // this points to current query
+  /**  Filtering out all the inactive users */
+  this.find({ active: { $ne: false } });
   next();
 });
 
