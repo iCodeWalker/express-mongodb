@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 
 import Tour from '../../models/tourModel.js';
 
-dotenv.config({ path: './config.env' });
+dotenv.config({ path: './.env' });
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
