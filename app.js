@@ -5,6 +5,9 @@ import { fileURLToPath } from 'url';
 import express from 'express';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
+import ExpressMongoSanitize from 'express-mongo-sanitize';
+import xss from 'xss-clean';
 
 import tourRouter from './routes/tourRoutes.js';
 import userRouter from './routes/userRoutes.js';
@@ -16,6 +19,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+
+/**
+ * setting security header
+ */
+app.use(helmet());
 
 /**
  * allows us to use nested objects in the URL
@@ -53,6 +61,14 @@ app.use('/api', limiter);
  * express.json() is a middleware that puts the body data on the req object
  */
 app.use(express.json());
+
+/** Data sanitisation */
+
+// 1. Against NoSQL query injection
+app.use(ExpressMongoSanitize());
+
+// 2. Against XSS (cross site scripting attack)
+app.use(xss());
 
 /**
  * Serving static file present on our system
