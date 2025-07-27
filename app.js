@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 
 import express from 'express';
 import morgan from 'morgan';
+import rateLimit from 'express-rate-limit';
 
 import tourRouter from './routes/tourRoutes.js';
 import userRouter from './routes/userRoutes.js';
@@ -32,6 +33,20 @@ app.set('query parser', 'extended');
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+
+/**
+ * Rate limiter:
+ *
+ * When we are getting multiple requests in a short span of time from the same IP, than we have to limit the number req to save
+ * our server from brute force attack.
+ */
+const limiter = rateLimit({
+  max: 300,
+  windowMs: 60 * 60 * 1000, // 1 hour
+  message: 'Too many requests. Please try again after some time. ',
+});
+
+app.use('/api', limiter);
 
 /**
  * By default express does not put the body data on the request parameter, we have to do it using a middleware
