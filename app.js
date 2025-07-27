@@ -8,6 +8,8 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import { xss } from 'express-xss-sanitizer';
+import hpp from 'hpp';
+
 import tourRouter from './routes/tourRoutes.js';
 import userRouter from './routes/userRoutes.js';
 
@@ -98,6 +100,23 @@ app.use((req, res, next) => {
 
 // 2. Against XSS (cross site scripting attack)
 app.use(xss());
+
+/**
+ * Preventing parameter pollutions
+ */
+// ### Whitelisting parameters ###
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsAverage',
+      'ratingsQuantity',
+      'maxGroupSize',
+      'difficulty',
+      'price',
+    ],
+  })
+);
 
 /**
  * Serving static file present on our system
