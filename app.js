@@ -6,9 +6,8 @@ import express from 'express';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
-import ExpressMongoSanitize from 'express-mongo-sanitize';
-import xss from 'xss-clean';
-
+import mongoSanitize from 'express-mongo-sanitize';
+import { xss } from 'express-xss-sanitizer';
 import tourRouter from './routes/tourRoutes.js';
 import userRouter from './routes/userRoutes.js';
 
@@ -65,7 +64,37 @@ app.use(express.json());
 /** Data sanitisation */
 
 // 1. Against NoSQL query injection
-app.use(ExpressMongoSanitize());
+
+// ################### use moongose built in 'sanitizeFilter' ###################
+// Apply mongo-sanitize safely without mutating req.query
+
+/** Function to sanitize query */
+function sanitize(obj) {
+  if (typeof obj !== 'object' || obj === null) return obj;
+
+  const clean = {};
+  for (const key in obj) {
+    const newKey = key.replace(/\$/g, '_').replace(/\./g, '_');
+    clean[newKey] = sanitize(obj[key]);
+  }
+  return clean;
+}
+
+app.use((req, res, next) => {
+  if (req.body) mongoSanitize.sanitize(req.body);
+  if (req.params) mongoSanitize.sanitize(req.params);
+
+  // Manually sanitize query if needed
+  if (req.query) {
+    try {
+      req.query = sanitize({ ...req.query }); // Safe clone
+    } catch (err) {
+      console.warn('Query sanitize failed:', err);
+    }
+  }
+
+  next();
+});
 
 // 2. Against XSS (cross site scripting attack)
 app.use(xss());
