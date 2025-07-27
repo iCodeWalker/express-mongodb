@@ -86,6 +86,31 @@ const tourSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    startLocation: {
+      // ################ Geojson: contains type and coordinates ################
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    /** ################ Creating embedded documents ################ */
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
   },
   {
     /** Schema options */
@@ -194,3 +219,79 @@ tourSchema.pre('aggregate', function (next) {
 const Tour = mongoose.model('Tour', tourSchema);
 
 export default Tour;
+
+/**
+ * Data modelling
+ * Structuring the real world unstructured data into a more logical way.
+ *
+ * 1. Different types of relationship between data
+ *
+ * 1:1 = One field can habe only one value. Ex: (One movie one name)
+ *
+ * 1:Many:
+ *
+ *  1:Few = One document can relate to many other documents. Ex: (One movie can win few awards)
+ *  1:Many = One document can relate to hundreds/thousand documents. Ex (One moveie can have many reviews)
+ *  1:ton = One document can realte to millions documents Ex : Log in our app
+ *
+ * Many:Many = One movie can have many actors, but one actor can also play in many movies
+ *
+ *
+ * 2. Referencing/normalization And embedding/denormalization:
+ *
+ *  In referencing we keep the 2 related datasets or the documents seperated, All the data is separated what
+ *  normalised means.
+ *
+ *  In embedding we keep the related datasets into a single parent document.
+ *
+ * 3. When to Embedding or referencing other documents
+ *
+ *  1. We need to see the type of relationship they have: 1:1 or 1:Maany or Many:Many
+ *
+ *     Embedding : 1:Few, 1:Many
+ *     Referencing : 1:Many, 1:Ton, Many:Many
+ *
+ *  2. We need to see how frequently we access the data, i.e how often the data is read and written. What is
+ *     the read/write ration,
+ *
+ *     Embedding :
+ *      1. Data is read frequently, Mostly read.
+ *      2. Data does not change quickly.
+ *      3. High read/write ratio.
+ *      4. Movies - Images
+ *
+ *     Referencing :
+ *      1. Data is updated a lot.
+ *      2. Low read/write ratio.
+ *      3. Ex : Movies - reviews
+ *
+ *
+ *  3. Data closeness: How much the data is realated, or how we want to query
+ *
+ *      Embedding :
+ *        Datasets really belong together. Ex: User + email addresses
+ *
+ *      Referencing :
+ *        We frequently need to query both datasets on thier own.
+ *        Ex : Movies - Images
+ *
+ *
+ * 4. Types of referencing
+ *
+ *    1. Child referencing:
+ *
+ *        In child referencing the parent holds an array of refernce ids of all the children.
+ *        Should not allow the array to grow much as it can than surpace the memory limit.
+ *        Used in 1:Few relationship
+ *
+ *    2. Parent referencing:
+ *
+ *        In Parent referencing the children holds the parent id.
+ *        Used in 1:Many, 1:Ton
+ *
+ *    3. Two-way referencing:
+ *
+ *        Both the documents have refernce of each other in it
+ *        Used in Many:Many realtionship.
+ *        Ex: movies - actors.
+ */
