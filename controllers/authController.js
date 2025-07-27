@@ -13,6 +13,44 @@ const createToken = (id) => {
   });
 };
 
+const createSendToken = (user, statusCode, res) => {
+  const token = createToken(user._id);
+
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    secure: process.env.NODE_ENV === 'production' ? true : false,
+    httpOnly: true, // cannot be accessed or modifiy in any way by the browser. CSSR
+  };
+
+  /**
+   * A cookie is just a small piece of text that a sever can send to a client, and when the client
+   * receives the cookie it automatically saves it, and automatically sends it back with all the future
+   * requests made to the same server.
+   *
+   * A browser automatically saves the cookie sent to it
+   */
+
+  /**
+   * Send a cookie
+   *
+   * attaching a cookie to response
+   */
+  res.cookie('jwt', token, cookieOptions);
+
+  /** Remove password from the user object that is sent in the response */
+  user.password = undefined;
+
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: {
+      user,
+    },
+  });
+};
+
 export const signUp = catchAsyncError(async (req, res, next) => {
   const newUser = await User.create({
     name: req.body.name,
@@ -24,15 +62,16 @@ export const signUp = catchAsyncError(async (req, res, next) => {
   });
 
   /** creating a jwt token and sending back to the user */
-  const token = createToken(newUser._id);
+  createSendToken(newUser, 201, res);
+  //   const token = createToken(newUser._id);
 
-  res.status(201).json({
-    status: 'success',
-    token: token,
-    data: {
-      user: newUser,
-    },
-  });
+  //   res.status(201).json({
+  //     status: 'success',
+  //     token: token,
+  //     data: {
+  //       user: newUser,
+  //     },
+  //   });
 });
 
 export const signIn = catchAsyncError(async (req, res, next) => {
@@ -74,12 +113,13 @@ export const signIn = catchAsyncError(async (req, res, next) => {
 
   /** 3. If everything is fine, send json webtoken to client */
 
-  const token = createToken(user._id);
+  createSendToken(user, 201, res);
+  //   const token = createToken(user._id);
 
-  res.status(201).json({
-    status: 'success',
-    token: token,
-  });
+  //   res.status(201).json({
+  //     status: 'success',
+  //     token: token,
+  //   });
 });
 
 /**
@@ -278,10 +318,12 @@ export const updatePassword = catchAsyncError(async (req, res, next) => {
   user.confirmPassword = req.body.confirmPassword;
   await user.save();
   /** 4. Log user in */
-  const token = createToken(user._id);
 
-  res.status(200).json({
-    status: 'success',
-    token: token,
-  });
+  createSendToken(user, 200, res);
+  //   const token = createToken(user._id);
+
+  //   res.status(200).json({
+  //     status: 'success',
+  //     token: token,
+  //   });
 });
