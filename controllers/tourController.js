@@ -198,8 +198,20 @@ export const getAllTours = async (req, res) => {
  */
 
 export const getTour = catchAsyncError(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id);
   // const tour = await Tour.findById(req.params.id);
+  // const tour = await Tour.findById(req.params.id);
+
+  /**
+   * Populating the guides (users) data into tours when ever the request is made
+   *
+   * Users will get populated into tours Only is the query and not into the actual database.
+   */
+  // const tour = await Tour.findById(req.params.id).populate({
+  //   path: 'guides',
+  //   select: '-__v -passwordChangedAt ',
+  // });
+
+  const tour = await Tour.findById(req.params.id);
 
   if (!tour) {
     return next(new AppError('No tour found', 404));

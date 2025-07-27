@@ -72,7 +72,7 @@ app.use(express.json());
 
 /** Function to sanitize query */
 function sanitize(obj) {
-  if (typeof obj !== 'object' || obj === null) return obj;
+  if (typeof obj !== 'object' || obj === null || obj == {}) return obj;
 
   const clean = {};
   for (const key in obj) {
@@ -89,7 +89,7 @@ app.use((req, res, next) => {
   // Manually sanitize query if needed
   if (req.query) {
     try {
-      req.query = sanitize({ ...req.query }); // Safe clone
+      // req.query = sanitize({ ...req.query }); // Safe clone
     } catch (err) {
       console.warn('Query sanitize failed:', err);
     }

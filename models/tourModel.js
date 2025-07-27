@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import slugify from 'slugify';
 import validator from 'validator';
+import User from './userModel.js';
 /**
  * Schema
  */
@@ -93,7 +94,10 @@ const tourSchema = new mongoose.Schema(
         default: 'Point',
         enum: ['Point'],
       },
-      coordinates: [Number],
+      coordinates: {
+        type: [Number],
+        default: [0, 0],
+      },
       address: String,
       description: String,
     },
@@ -105,10 +109,22 @@ const tourSchema = new mongoose.Schema(
           default: 'Point',
           enum: ['Point'],
         },
-        coordinates: [Number],
+        coordinates: {
+          type: [Number],
+          default: [0, 0],
+        },
         address: String,
         description: String,
         day: Number,
+      },
+    ],
+    /** ################ Embedding Users in tours ################ */
+    // guides: Array,
+    /** ################ Referencing Users in tours ################ */
+    guides: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
       },
     ],
   },
@@ -165,6 +181,18 @@ tourSchema.pre('save', function (next) {
   next();
 });
 
+/**
+ * ############ Embedding Users in tours ############
+ * In post data only id of users are passed in guides array, here we embed the user data in tours  */
+
+// tourSchema.pre('save', async function (next) {
+//   const guidesPromiseData = this.guides.map(async (id) => User.findById(id));
+
+//   this.guides = await Promise.all(guidesPromiseData);
+
+//   next();
+// });
+
 /** Post middleware */
 /**
  * Post middleware funtions are executed when all the pre middleware functions are completed
@@ -191,7 +219,20 @@ tourSchema.pre(/^find/, function (next) {
 //   this.find({ secretTour: { $ne: true } });
 //   next();
 // });
-//
+
+/**
+ *
+ * Creating a middleware to populate the guides fields with user data inside the tours documents
+ */
+
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangedAt ',
+  });
+
+  next();
+});
 
 /**
  * post middleware for find
