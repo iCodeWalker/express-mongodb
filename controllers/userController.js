@@ -5,6 +5,7 @@
 import User from '../models/userModel.js';
 import AppError from '../utils/appError.js';
 import catchAsyncError from '../utils/catchAsyncError.js';
+import { deleteOne } from './handlerFactory.js';
 
 export const getAllUsers = catchAsyncError(async (req, res) => {
   const users = await User.find();
@@ -35,12 +36,15 @@ export const updateUser = (req, res) => {
     message: 'This route is not in use',
   });
 };
-export const deleteUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not in use',
-  });
-};
+
+// export const deleteUser = (req, res) => {
+//   res.status(500).json({
+//     status: 'error',
+//     message: 'This route is not in use',
+//   });
+// };
+
+export const deleteUser = deleteOne(User);
 
 const filterObject = (obj, allowedFields) => {
   let newObj = {};

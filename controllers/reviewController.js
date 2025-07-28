@@ -1,5 +1,6 @@
 import Review from '../models/reviewModel.js';
 import catchAsyncError from '../utils/catchAsyncError.js';
+import { deleteOne } from './handlerFactory.js';
 
 export const getAllReviews = catchAsyncError(async (req, res, next) => {
   //   const reviews = await Review.find().populate('User').populate('Tour');
@@ -34,3 +35,5 @@ export const createReview = catchAsyncError(async (req, res, next) => {
     data: newReview,
   });
 });
+
+export const deleteReview = deleteOne(Review);

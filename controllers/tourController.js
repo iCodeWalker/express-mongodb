@@ -2,6 +2,7 @@ import Tour from '../models/tourModel.js';
 import APIFeatures from '../utils/apiFeatures.js';
 import AppError from '../utils/appError.js';
 import catchAsyncError from '../utils/catchAsyncError.js';
+import { deleteOne } from './handlerFactory.js';
 
 /**
  * Aliasing
@@ -333,18 +334,24 @@ export const updateTour = catchAsyncError(async (req, res, next) => {
  * deleteTour : Route handler for deleting a tour
  */
 
-export const deleteTour = catchAsyncError(async (req, res, next) => {
-  const tour = await Tour.findByIdAndDelete(req.params.id);
+// export const deleteTour = catchAsyncError(async (req, res, next) => {
+//   const tour = await Tour.findByIdAndDelete(req.params.id);
 
-  if (!tour) {
-    return next(new AppError('No tour found', 404));
-  }
+//   if (!tour) {
+//     return next(new AppError('No tour found', 404));
+//   }
 
-  res.status(204).json({
-    status: 'success',
-    data: null,
-  });
-});
+//   res.status(204).json({
+//     status: 'success',
+//     data: null,
+//   });
+// });
+
+/**
+ * Using function from handler factory
+ */
+
+export const deleteTour = deleteOne(Tour);
 
 // export const deleteTour = async (req, res) => {
 //   try {

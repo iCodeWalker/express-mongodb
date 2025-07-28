@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   createReview,
+  deleteReview,
   getAllReviews,
 } from '../controllers/reviewController.js';
 import {
@@ -19,5 +20,7 @@ router
   .route('/')
   .get(protectedRoutes, getAllReviews)
   .post(protectedRoutes, accessRestrictedTo('user'), createReview);
+
+router.route('/:id').delete(deleteReview);
 
 export default router;
