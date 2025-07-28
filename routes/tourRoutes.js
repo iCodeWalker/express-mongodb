@@ -16,8 +16,21 @@ import {
   accessRestrictedTo,
   protectedRoutes,
 } from '../controllers/authController.js';
+// import { createReview } from '../controllers/reviewController.js';
+import reviewRouter from './reviewRoutes.js';
 
 const router = express.Router();
+
+/**
+ * Nested routes
+ */
+
+// router
+//   .route('/:tourId/reviews')
+//   .post(protectedRoutes, accessRestrictedTo('user'), createReview);
+
+/** Instead of using review controllers in the tour router we can mount a router here */
+router.use('/:tourId/reviews', reviewRouter);
 
 /**
  * creating param middleware, that runs on specific url with specific params
