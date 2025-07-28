@@ -149,6 +149,20 @@ tourSchema.virtual('durationInWeeks').get(function () {
 });
 
 /**
+ *
+ * Virtual poulate
+ *
+ * In this the reviews data will be populated in the tours, but without being saving to the database
+ */
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField:
+    'tour' /** name of the field in the other model in this case 'Review'
+  where the reference to the current model is stored */,
+  localField:
+    '_id' /** name of the field where the id is stored in this model */,
+});
+/**
  * In Document middleware, just like express middleware
  * We can perform something between the two events
  *
