@@ -12,6 +12,7 @@ import hpp from 'hpp';
 
 import tourRouter from './routes/tourRoutes.js';
 import userRouter from './routes/userRoutes.js';
+import reviewRouter from './routes/reviewRoutes.js';
 
 import AppError from './utils/appError.js';
 import globalErrorHandler from './controllers/errorController.js';
@@ -371,6 +372,13 @@ app.use('/api/v1/tours', tourRouter);
 // userRouter.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
 
 app.use('/api/v1/users', userRouter);
+
+/**
+ * Review routes
+ */
+
+app.use('/api/v1/reviews', reviewRouter);
+
 /**
  * Handling Unhandled routes
  *

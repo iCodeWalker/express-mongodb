@@ -29,8 +29,27 @@ const reviewSchema = new mongoose.Schema(
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
+    strictPopulate: false,
   }
 );
+
+/**
+ *
+ * Creating a middleware to populate the user and tour fields with user data and tour data
+ * inside the review documents
+ */
+
+reviewSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'user',
+    select: 'name photo',
+  }).populate({
+    path: 'tour',
+    select: 'name',
+  });
+
+  next();
+});
 
 const Review = mongoose.model('Review', reviewSchema);
 

@@ -204,7 +204,7 @@ export const getTour = catchAsyncError(async (req, res, next) => {
   /**
    * Populating the guides (users) data into tours when ever the request is made
    *
-   * Users will get populated into tours Only is the query and not into the actual database.
+   * Users will get populated into tours Only in the query and not into the actual database.
    */
   // const tour = await Tour.findById(req.params.id).populate({
   //   path: 'guides',
