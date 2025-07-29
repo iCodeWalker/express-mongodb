@@ -1,8 +1,14 @@
 import Review from '../models/reviewModel.js';
 import catchAsyncError from '../utils/catchAsyncError.js';
-import { createOne, deleteOne, updateOne } from './handlerFactory.js';
+import {
+  createOne,
+  deleteOne,
+  getAll,
+  getOne,
+  updateOne,
+} from './handlerFactory.js';
 
-export const getAllReviews = catchAsyncError(async (req, res, next) => {
+export const getAllReviewsOld = catchAsyncError(async (req, res, next) => {
   //   const reviews = await Review.find().populate('User').populate('Tour');
   let filterObj = {};
 
@@ -18,6 +24,11 @@ export const getAllReviews = catchAsyncError(async (req, res, next) => {
     data: reviews,
   });
 });
+
+/**
+ * Using function from handler factory
+ */
+export const getAllReviews = getAll(Review);
 
 // export const createReview = catchAsyncError(async (req, res, next) => {
 //   if (!req.body.tour) {
@@ -50,6 +61,11 @@ export const setTourAndUserIds = (req, res, next) => {
   }
   next();
 };
+
+/**
+ * Using function from handler factory
+ */
+export const getReview = getOne(Review);
 
 /**
  * Using function from handler factory

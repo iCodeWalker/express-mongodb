@@ -2,7 +2,13 @@ import Tour from '../models/tourModel.js';
 import APIFeatures from '../utils/apiFeatures.js';
 import AppError from '../utils/appError.js';
 import catchAsyncError from '../utils/catchAsyncError.js';
-import { createOne, deleteOne, updateOne } from './handlerFactory.js';
+import {
+  createOne,
+  deleteOne,
+  getAll,
+  getOne,
+  updateOne,
+} from './handlerFactory.js';
 
 /**
  * Aliasing
@@ -57,7 +63,7 @@ export const checkTourId = (req, res, next, value) => {
 /**
  * getAllTours : Route handler getting all tours
  */
-export const getAllTours = async (req, res) => {
+export const getAllToursOld = async (req, res) => {
   try {
     /**
      * Get all tours
@@ -195,10 +201,15 @@ export const getAllTours = async (req, res) => {
 };
 
 /**
+ * Using function from handler factory
+ */
+export const getAllTours = getAll(Tour);
+
+/**
  * getTour : Route handler for getting a single tour
  */
 
-export const getTour = catchAsyncError(async (req, res, next) => {
+export const getTourOld = catchAsyncError(async (req, res, next) => {
   // const tour = await Tour.findById(req.params.id);
   // const tour = await Tour.findById(req.params.id);
 
@@ -225,6 +236,11 @@ export const getTour = catchAsyncError(async (req, res, next) => {
     },
   });
 });
+
+/**
+ * Using function from handler factory
+ */
+export const getTour = getOne(Tour, { path: 'reviews' });
 
 // export const getTour = async (req, res) => {
 //   try {

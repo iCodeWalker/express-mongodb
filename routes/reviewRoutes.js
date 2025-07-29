@@ -3,6 +3,7 @@ import {
   createReview,
   deleteReview,
   getAllReviews,
+  getReview,
   setTourAndUserIds,
   updateReview,
 } from '../controllers/reviewController.js';
@@ -28,6 +29,6 @@ router
     createReview
   );
 
-router.route('/:id').patch(updateReview).delete(deleteReview);
+router.route('/:id').get(getReview).patch(updateReview).delete(deleteReview);
 
 export default router;

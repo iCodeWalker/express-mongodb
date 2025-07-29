@@ -5,9 +5,9 @@
 import User from '../models/userModel.js';
 import AppError from '../utils/appError.js';
 import catchAsyncError from '../utils/catchAsyncError.js';
-import { deleteOne, updateOne } from './handlerFactory.js';
+import { deleteOne, getAll, getOne, updateOne } from './handlerFactory.js';
 
-export const getAllUsers = catchAsyncError(async (req, res) => {
+export const getAllUsersOld = catchAsyncError(async (req, res) => {
   const users = await User.find();
 
   res.status(200).json({
@@ -18,6 +18,11 @@ export const getAllUsers = catchAsyncError(async (req, res) => {
     },
   });
 });
+
+/**
+ * Using function from handler factory
+ */
+export const getAllUsers = getAll(User);
 
 export const createUser = (req, res) => {
   res.status(500).json({
@@ -33,12 +38,17 @@ export const createUser = (req, res) => {
  */
 // export const createUser = createOne(User);
 
-export const getUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not in use',
-  });
-};
+// export const getUser = (req, res) => {
+//   res.status(500).json({
+//     status: 'error',
+//     message: 'This route is not in use',
+//   });
+// };
+
+/**
+ * Using function from handler factory
+ */
+export const getUser = getOne(User);
 // export const updateUser = (req, res) => {
 //   res.status(500).json({
 //     status: 'error',
