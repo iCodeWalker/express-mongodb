@@ -3,6 +3,8 @@ import {
   createReview,
   deleteReview,
   getAllReviews,
+  setTourAndUserIds,
+  updateReview,
 } from '../controllers/reviewController.js';
 import {
   protectedRoutes,
@@ -19,8 +21,13 @@ const router = express.Router({ mergeParams: true });
 router
   .route('/')
   .get(protectedRoutes, getAllReviews)
-  .post(protectedRoutes, accessRestrictedTo('user'), createReview);
+  .post(
+    protectedRoutes,
+    accessRestrictedTo('user'),
+    setTourAndUserIds,
+    createReview
+  );
 
-router.route('/:id').delete(deleteReview);
+router.route('/:id').patch(updateReview).delete(deleteReview);
 
 export default router;

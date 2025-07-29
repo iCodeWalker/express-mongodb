@@ -5,7 +5,7 @@
 import User from '../models/userModel.js';
 import AppError from '../utils/appError.js';
 import catchAsyncError from '../utils/catchAsyncError.js';
-import { deleteOne } from './handlerFactory.js';
+import { deleteOne, updateOne } from './handlerFactory.js';
 
 export const getAllUsers = catchAsyncError(async (req, res) => {
   const users = await User.find();
@@ -18,24 +18,38 @@ export const getAllUsers = catchAsyncError(async (req, res) => {
     },
   });
 });
+
 export const createUser = (req, res) => {
   res.status(500).json({
     status: 'error',
     message: 'This route is not in use',
   });
 };
+
+/**
+ * Using function from handler factory
+ *
+ * The users are created from the signup method, so no need to use factory function here
+ */
+// export const createUser = createOne(User);
+
 export const getUser = (req, res) => {
   res.status(500).json({
     status: 'error',
     message: 'This route is not in use',
   });
 };
-export const updateUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'This route is not in use',
-  });
-};
+// export const updateUser = (req, res) => {
+//   res.status(500).json({
+//     status: 'error',
+//     message: 'This route is not in use',
+//   });
+// };
+
+/**
+ * Using function from handler factory
+ */
+export const updateUser = updateOne(User);
 
 // export const deleteUser = (req, res) => {
 //   res.status(500).json({
@@ -44,6 +58,9 @@ export const updateUser = (req, res) => {
 //   });
 // };
 
+/**
+ * Using function from handler factory
+ */
 export const deleteUser = deleteOne(User);
 
 const filterObject = (obj, allowedFields) => {

@@ -2,7 +2,7 @@ import Tour from '../models/tourModel.js';
 import APIFeatures from '../utils/apiFeatures.js';
 import AppError from '../utils/appError.js';
 import catchAsyncError from '../utils/catchAsyncError.js';
-import { deleteOne } from './handlerFactory.js';
+import { createOne, deleteOne, updateOne } from './handlerFactory.js';
 
 /**
  * Aliasing
@@ -253,16 +253,22 @@ export const getTour = catchAsyncError(async (req, res, next) => {
  * createTour : Route handler for creating a tour
  */
 
-export const createTour = catchAsyncError(async (req, res, next) => {
-  const newTour = await Tour.create(req.body);
+// export const createTour = catchAsyncError(async (req, res, next) => {
+//   const newTour = await Tour.create(req.body);
 
-  res.status(201).json({
-    status: 'success',
-    data: {
-      tour: newTour,
-    },
-  });
-});
+//   res.status(201).json({
+//     status: 'success',
+//     data: {
+//       tour: newTour,
+//     },
+//   });
+// });
+
+/**
+ * Using function from handler factory
+ */
+
+export const createTour = createOne(Tour);
 
 // export const createTour = async (req, res) => {
 //   try {
@@ -291,23 +297,29 @@ export const createTour = catchAsyncError(async (req, res, next) => {
  * updateTour : Route handler for updating a tour
  */
 
-export const updateTour = catchAsyncError(async (req, res, next) => {
-  const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+// export const updateTour = catchAsyncError(async (req, res, next) => {
+//   const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+//     new: true,
+//     runValidators: true,
+//   });
 
-  if (!tour) {
-    return next(new AppError('No tour found', 404));
-  }
+//   if (!tour) {
+//     return next(new AppError('No tour found', 404));
+//   }
 
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour: tour,
-    },
-  });
-});
+//   res.status(200).json({
+//     status: 'success',
+//     data: {
+//       tour: tour,
+//     },
+//   });
+// });
+
+/**
+ * Using function from handler factory
+ */
+
+export const updateTour = updateOne(Tour);
 
 // export const updateTour = async (req, res) => {
 //   try {
