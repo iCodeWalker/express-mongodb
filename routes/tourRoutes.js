@@ -53,13 +53,27 @@ router.route('/tour-stats').get(getTourStats);
 /**
  * Unwinding and matching
  */
-router.route('/monthly-plan/:year').get(getMonthlyPlan);
+router
+  .route('/monthly-plan/:year')
+  .get(
+    protectedRoutes,
+    accessRestrictedTo('admin', 'lead-guide', 'guide'),
+    getMonthlyPlan
+  );
 
-router.route('/').get(protectedRoutes, getAllTours).post(checkBody, createTour);
+router
+  .route('/')
+  .get(/*protectedRoutes,*/ getAllTours)
+  .post(
+    protectedRoutes,
+    accessRestrictedTo('admin', 'lead-guide'),
+    checkBody,
+    createTour
+  );
 router
   .route('/:id')
   .get(getTour)
-  .patch(updateTour)
+  .patch(protectedRoutes, accessRestrictedTo('admin', 'lead-guide'), updateTour)
   .delete(
     protectedRoutes,
     accessRestrictedTo('admin', 'lead-guide'),

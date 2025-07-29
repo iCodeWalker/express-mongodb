@@ -19,16 +19,17 @@ const router = express.Router({ mergeParams: true });
  * Here we have no "tourId" param, so in order to get access of "tourId" here we use { mergeParams: true }
  */
 
+router.use(protectedRoutes);
+
 router
   .route('/')
-  .get(protectedRoutes, getAllReviews)
-  .post(
-    protectedRoutes,
-    accessRestrictedTo('user'),
-    setTourAndUserIds,
-    createReview
-  );
+  .get(getAllReviews)
+  .post(accessRestrictedTo('user'), setTourAndUserIds, createReview);
 
-router.route('/:id').get(getReview).patch(updateReview).delete(deleteReview);
+router
+  .route('/:id')
+  .get(getReview)
+  .patch(accessRestrictedTo('user', 'admin'), updateReview)
+  .delete(accessRestrictedTo('user', 'admin'), deleteReview);
 
 export default router;
