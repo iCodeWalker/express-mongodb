@@ -8,6 +8,7 @@ import {
   deleteUser,
   updateUserData,
   deleteCurrentUser,
+  getCurrentUserData,
 } from '../controllers/userController.js';
 import {
   forgotPassword,
@@ -29,6 +30,8 @@ router.route('/forgot-password').post(forgotPassword);
 router.route('/reset-password/:token').patch(resetPassword);
 
 router.route('/update-password').patch(protectedRoutes, updatePassword);
+
+router.route('/current-user').get(protectedRoutes, getCurrentUserData, getUser);
 
 router.route('/update-user-data').patch(protectedRoutes, updateUserData);
 

@@ -116,3 +116,8 @@ export const deleteCurrentUser = catchAsyncError(async (req, res, next) => {
     data: null,
   });
 });
+
+export const getCurrentUserData = async (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+};
