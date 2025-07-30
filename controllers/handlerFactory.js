@@ -93,7 +93,7 @@ export const getAll = (Model) => {
      * This gives us details about our query.
      * const data = await features.query.explain();
      */
-    const data = await features.query.explain();
+    const data = await features.query;
 
     res.status(200).json({
       status: 'success',
