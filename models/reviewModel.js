@@ -35,6 +35,21 @@ const reviewSchema = new mongoose.Schema(
 );
 
 /**
+ * Creating indexes
+ *
+ * Preventing from creating duplicate reviews
+ */
+reviewSchema.index(
+  {
+    tour: 1,
+    user: 1,
+  },
+  {
+    unique: true,
+  }
+);
+
+/**
  *
  * Creating a middleware to populate the user and tour fields with user data and tour data
  * inside the review documents
