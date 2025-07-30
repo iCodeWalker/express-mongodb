@@ -89,7 +89,11 @@ export const getAll = (Model) => {
       .limitFields()
       .pagination();
 
-    const data = await features.query;
+    /**
+     * This gives us details about our query.
+     * const data = await features.query.explain();
+     */
+    const data = await features.query.explain();
 
     res.status(200).json({
       status: 'success',

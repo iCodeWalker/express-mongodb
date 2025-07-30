@@ -136,6 +136,28 @@ const tourSchema = new mongoose.Schema(
 );
 
 /**
+ * Creating indexes
+ *
+ * If we need to filter out data based on prices or some key than instead of searching for our query in the
+ * document we can query it in the indexed data, and than from there monog db will return us the required
+ * documents
+ */
+/** Single indexing */
+// tourSchema.index({
+//   price: 1, // 1 for asscending, -1 for descending
+// });
+
+/** Multiple or compound indexing */
+tourSchema.index({
+  price: 1,
+  ratingsAverage: -1,
+});
+
+tourSchema.index({
+  slug: 1,
+});
+
+/**
  * Virtual properties: fields that we can define in our schema, but it will not be persisted.
  *  It will not be saved in our database.
  *
