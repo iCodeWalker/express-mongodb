@@ -160,6 +160,11 @@ tourSchema.index({
   slug: 1,
 });
 
+/** Indexing for 'startLocation' for geolocation */
+tourSchema.index({
+  startLocation: '2dsphere', // 2dsphere for real earth, and 2d for fictional points in 2d plane.
+});
+
 /**
  * Virtual properties: fields that we can define in our schema, but it will not be persisted.
  *  It will not be saved in our database.

@@ -11,6 +11,7 @@ import {
   aliasTopTours,
   getTourStats,
   getMonthlyPlan,
+  getToursWithIn,
 } from '../controllers/tourController.js';
 import {
   accessRestrictedTo,
@@ -60,6 +61,15 @@ router
     accessRestrictedTo('admin', 'lead-guide', 'guide'),
     getMonthlyPlan
   );
+
+/**
+ * Route for getting tours in a certain location
+ */
+
+router
+  .route('/tours-within/:distance/user-location/:latlng/unit/:unit')
+  .get(getToursWithIn);
+// we can also build url like this using query:  /tours-distance?distance=23&user-location=-40,45&unit=miles
 
 router
   .route('/')

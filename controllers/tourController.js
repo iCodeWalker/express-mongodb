@@ -536,3 +536,35 @@ export const getMonthlyPlan = async (req, res) => {
     });
   }
 };
+
+export const getToursWithIn = catchAsyncError(async (req, res) => {
+  /* /tours-within/:distance/user-location/:latlng/unit/:unit */
+  /* /tours-within?distance=23&user-location=-40,45&unit=miles  */
+
+  const { distance, latlng, unit } = req.params;
+
+  const [lat, lng] = latlng.split(',');
+
+  const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1; // distance convered into radians
+  // 6378.1 -> radius of earth in km
+
+  if (!lat || !lng) {
+    next(new AppError('Please provide your location', 400));
+  }
+
+  // $geoWithin -> finds the document within some geometry, and we need to define this geometry
+  // we define a sphere that starts at 'user-location' and has radius of 'distance'
+  const tours = await Tour.find({
+    startLocation: {
+      $geoWithin: {
+        $centerSphere: [[lng, lat], radius],
+      },
+    },
+  });
+
+  res.status(200).json({
+    status: 'success',
+    results: tours.length,
+    data: tours,
+  });
+});
