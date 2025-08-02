@@ -12,6 +12,7 @@ import {
   getTourStats,
   getMonthlyPlan,
   getToursWithIn,
+  getDistanceOfTours,
 } from '../controllers/tourController.js';
 import {
   accessRestrictedTo,
@@ -70,6 +71,11 @@ router
   .route('/tours-within/:distance/user-location/:latlng/unit/:unit')
   .get(getToursWithIn);
 // we can also build url like this using query:  /tours-distance?distance=23&user-location=-40,45&unit=miles
+
+/**
+ * Route to get distance from a certain point
+ */
+router.route('/distance/:latlng/unit/:unit').get(getDistanceOfTours);
 
 router
   .route('/')

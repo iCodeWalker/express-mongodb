@@ -568,3 +568,41 @@ export const getToursWithIn = catchAsyncError(async (req, res) => {
     data: tours,
   });
 });
+
+export const getDistanceOfTours = catchAsyncError(async (req, res) => {
+  const { latlng, unit } = req.params;
+
+  const [lat, lng] = latlng.split(',');
+
+  const multiplier = unit == 'mi' ? 0.000621 : 0.001;
+
+  if (!lat || !lng) {
+    next(new AppError('Please provide your location', 400));
+  }
+
+  const distances = await Tour.aggregate([
+    // $geoNear needs to be the first stage in the pipeline
+    {
+      $geoNear: {
+        near: {
+          type: 'Point',
+          coordinates: [lng * 1, lat * 1],
+        }, // The point from which we need to calculate the distance
+        distanceField: 'distance', //This is the name of the field that will be created and were all the caluculated distances will be stored
+        distanceMultiplier: multiplier, // Converted to km
+      },
+    },
+    {
+      $project: {
+        // ### Only have distance and name field ###
+        distance: 1,
+        name: 1,
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: distances,
+  });
+});
