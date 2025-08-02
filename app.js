@@ -23,6 +23,19 @@ const __dirname = path.dirname(__filename);
 const app = express();
 
 /**
+ * Setting template engine
+ */
+app.set('view engine', 'pug');
+/** Where the template files are located in our file system */
+app.set('views', path.join(__dirname, 'views'));
+/**
+ * Serving static file present on our system
+ * Works only for static file
+ * We will be using a middleware
+ */
+app.use(express.static(path.join(__dirname, 'public')));
+
+/**
  * setting security header
  */
 app.use(helmet());
@@ -125,7 +138,7 @@ app.use(
  * We will be using a middleware
  */
 
-app.use(express.static(`${__dirname}/public`));
+// app.use(express.static(`${__dirname}/public`));
 
 /**
  *
@@ -294,6 +307,16 @@ const deleteUser = (req, res) => {
     message: 'This route is not in use',
   });
 };
+
+/**
+ * Route for accessing templates
+ */
+app.get('/', (req, res) => {
+  res.status(200).render('base', {
+    tour: 'New tour',
+    user: 'vaibhav',
+  });
+});
 
 /**
  * GET http method : getting all tours data

@@ -1,0 +1,17 @@
+doctype html
+html
+    head
+        title Natours | #{tour}
+        link(rel='stylesheet' href='css/style.css')
+        link(rel='shortcut icon' type='image/png' href='img/favicon.png')
+    body
+        h1= tour
+        //- h1 The Park Camper
+        //- Everything after = is treated as javascript
+        //- template string in js ${} = template string in pug #{}
+        h2= user.toUpperCase() 
+        //- can also use javascript here
+
+        -const x = 9; //- this is unbuffered code that will not be added to the html 
+        h2= 2 * x
+        p This is demo text
