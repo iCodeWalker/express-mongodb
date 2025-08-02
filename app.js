@@ -318,6 +318,20 @@ app.get('/', (req, res) => {
   });
 });
 
+app.get('/overview', (req, res) => {
+  res.status(200).render('overview', {
+    title: 'All tours',
+    user: 'vaibhav',
+  });
+});
+
+app.get('/tour', (req, res) => {
+  res.status(200).render('tour', {
+    title: 'Forest hiker',
+    user: 'vaibhav',
+  });
+});
+
 /**
  * GET http method : getting all tours data
  *
