@@ -2,6 +2,13 @@ extends base
 
 include _reviewCard
 
+block append head
+    script(src='https://api.mapbox.com/mapbox-gl-js/v3.14.0/mapbox-gl.js')
+    link(href='https://api.mapbox.com/mapbox-gl-js/v3.14.0/mapbox-gl.css' rel='stylesheet')
+    //- script(src='/js/mapbox.js')
+    //- This script will be added at the end of the in the head element
+    //- we can use prepend to add it in the begining
+
 //- mixin reviewCard(review)
 //-     .reviews__card
 //-         .reviews__avatar
@@ -118,7 +125,7 @@ block content
     //-         img.picture-box__img.picture-box__img--3(src='/img/tour-5-3.jpg', alt='The Park Camper Tour 1')
 
     section.section-map
-    #map
+        #map(data-locations=`${JSON.stringify(tour.locations)}`)
 
     section.section-reviews
         .reviews
