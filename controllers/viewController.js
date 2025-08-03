@@ -36,3 +36,10 @@ export const getTour = catchAsyncError(async (req, res) => {
       tour: tour,
     });
 });
+
+/** Login Form page */
+export const getLoginForm = catchAsyncError(async (req, res) => {
+  res.status(200).render('login', {
+    title: 'Log In',
+  });
+});
