@@ -1,10 +1,9 @@
 const locations = JSON.parse(document.getElementById('map').dataset.locations);
 
-mapboxgl.accessToken =
-  'pk.eyJ1Ijoia2Fkd2V5MzAiLCJhIjoiY21kdnlyNjc3MXNndzJscjNjM3dlY2FwdCJ9.9Sftq76ogwOLirdDBbHpXA';
+mapboxgl.accessToken = process.env.MAPBOX_KEY;
 const map = new mapboxgl.Map({
   container: 'map', // container ID
-  style: 'mapbox://styles/kadwey30/cmdvytt6p003r01r5458t9n97', // style URL
+  style: process.env.MAPBOX_STYLE_URL, // style URL
   //   center: [-74.5, 40], // starting position [lng, lat]
   //   zoom: 9, // starting zoom
   //   interactive: false,
