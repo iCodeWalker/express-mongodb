@@ -122,6 +122,19 @@ export const signIn = catchAsyncError(async (req, res, next) => {
   //   });
 });
 
+/** Logout user */
+
+export const signOut = (req, res) => {
+  res.cookie('jwt', 'signedout', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+
+  res.status(200).json({
+    status: 'success',
+  });
+};
+
 /**
  * Middleware function for protecting routes
  *
@@ -331,36 +344,40 @@ export const updatePassword = catchAsyncError(async (req, res, next) => {
 });
 
 /** Only for rendered pages */
-export const isLoggedIn = catchAsyncError(async (req, res, next) => {
+export const isLoggedIn = async (req, res, next) => {
   let token = '';
   if (req.cookies.jwt) {
-    token = req.cookies.jwt;
+    try {
+      token = req.cookies.jwt;
 
-    /** 1. Validating the token */
-    const decodedData = await promisify(jwt.verify)(
-      token,
-      process.env.JWT_SECRET
-    );
+      /** 1. Validating the token */
+      const decodedData = await promisify(jwt.verify)(
+        token,
+        process.env.JWT_SECRET
+      );
 
-    /**
-     *  2. Check if user still exists
-     *  Checking if the id we get in the response of verifing the token exists or not
-     */
-    const user = await User.findById(decodedData.id);
+      /**
+       *  2. Check if user still exists
+       *  Checking if the id we get in the response of verifing the token exists or not
+       */
+      const user = await User.findById(decodedData.id);
 
-    if (!user) {
+      if (!user) {
+        return next();
+      }
+
+      /** 3. Check if user has changed the password */
+      if (user.changedPassword(decodedData.iat)) {
+        return next();
+      }
+
+      // ### using this we can access the user object inside our templates
+      res.locals.user = user;
+      return next();
+      /** Now can access the protected routes */
+    } catch (err) {
       return next();
     }
-
-    /** 3. Check if user has changed the password */
-    if (user.changedPassword(decodedData.iat)) {
-      return next();
-    }
-
-    // ### using this we can access the user object inside our templates
-    res.locals.user = user;
-    return next();
-    /** Now can access the protected routes */
   }
   next();
-});
+};
