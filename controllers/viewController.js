@@ -54,3 +54,11 @@ export const getLoginForm = catchAsyncError(async (req, res) => {
       title: 'Log In',
     });
 });
+
+/** For user details page */
+
+export const getAccount = (req, res) => {
+  res.status(200).render('account', {
+    title: 'Your account',
+  });
+};

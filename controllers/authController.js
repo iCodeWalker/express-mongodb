@@ -191,6 +191,8 @@ export const protectedRoutes = catchAsyncError(async (req, res, next) => {
 
   // ### This req.user is passed to the next middlware ###
   req.user = user;
+  // ### using this we can access the user object inside our templates
+  res.locals.user = user;
 
   /** Now can access the protected routes */
   next();
