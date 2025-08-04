@@ -77,7 +77,11 @@ app.use('/api', limiter);
  * By default express does not put the body data on the request parameter, we have to do it using a middleware
  * express.json() is a middleware that puts the body data on the req object
  */
-app.use(express.json());
+app.use(express.json({ limit: '10kb' }));
+/**
+ * To parse data from urlencoded form
+ */
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 /**
  * Parsing cookie

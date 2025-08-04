@@ -4,6 +4,7 @@ import {
   getTour,
   getLoginForm,
   getAccount,
+  updateUserData,
 } from '../controllers/viewController.js';
 import { isLoggedIn, protectedRoutes } from '../controllers/authController.js';
 
@@ -19,5 +20,7 @@ router.get('/tour/:slug', isLoggedIn, getTour);
 router.get('/login', isLoggedIn, getLoginForm);
 
 router.get('/current-user', protectedRoutes, getAccount);
+
+router.post('/submit-user-data', protectedRoutes, updateUserData);
 
 export default router;

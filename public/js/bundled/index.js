@@ -670,7 +670,7 @@ function hmrAccept(bundle /*: ParcelRequire */ , id /*: string */ ) {
 var _login = require("./login");
 var _mapbox = require("./mapbox");
 const mapBox = document.getElementById('map');
-const loginForm = document.querySelector('.form');
+const loginForm = document.querySelector('.form--login');
 const logoutBtn = document.querySelector('.nav__el--logout');
 if (mapBox) {
     const locations = JSON.parse(mapBox.dataset.locations);
