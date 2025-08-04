@@ -45,27 +45,53 @@ const handleValidationErrorDB = (err) => {
   return new AppError(message, 400);
 };
 
-const sendErrorForDev = (err, res) => {
-  res.status(err.statusCode).json({
-    status: err.status,
-    error: err,
-    message: err.message,
-    stack: err.stack,
-  });
-};
-
-const sendErrorForProd = (err, res) => {
-  if (err.isOperational) {
+const sendErrorForDev = (err, req, res) => {
+  /** For API */
+  if (req.originalUrl.startsWith('/api')) {
     res.status(err.statusCode).json({
       status: err.status,
+      error: err,
       message: err.message,
+      stack: err.stack,
     });
   } else {
-    console.log('Error -->', err);
-    res.status(500).json({
-      status: 'error',
-      message: 'something went wrong',
+    /** For rendered Pages */
+    res.status(err.statusCode).render('error', {
+      title: 'Something went wrong!',
+      msg: err.message,
     });
+  }
+};
+
+const sendErrorForProd = (err, req, res) => {
+  /** For API */
+  if (req.originalUrl.startsWith('/api')) {
+    if (err.isOperational) {
+      res.status(err.statusCode).json({
+        status: err.status,
+        message: err.message,
+      });
+    } else {
+      console.log('Error -->', err);
+      res.status(500).json({
+        status: 'error',
+        message: 'something went wrong',
+      });
+    }
+  } else {
+    /** For rendered Pages */
+    if (err.isOperational) {
+      res.status(err.statusCode).render('error', {
+        title: 'Something went wrong!',
+        msg: err.message,
+      });
+    } else {
+      console.log('Error -->', err);
+      res.status(err.statusCode).render('error', {
+        title: 'Something went wrong!',
+        msg: 'Please try again later',
+      });
+    }
   }
 };
 
@@ -74,9 +100,10 @@ const globalErrorHandler = (err, req, res, next) => {
   err.status = err.status || 'error';
 
   if (process.env.NODE_ENV === 'development') {
-    sendErrorForDev(err, res);
+    sendErrorForDev(err, req, res);
   } else if (process.env.NODE_ENV === 'production') {
     let error = { ...err };
+    error.message = err.message;
 
     // ### invalid id ###
     if (err.name === 'CastError') {
@@ -98,7 +125,7 @@ const globalErrorHandler = (err, req, res, next) => {
     if (err.name === 'TokenExpiredError') {
       error = handleJWTExpiredError(error);
     }
-    sendErrorForProd(error, res);
+    sendErrorForProd(error, req, res);
   }
 };
 

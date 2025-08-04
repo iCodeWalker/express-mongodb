@@ -1,4 +1,5 @@
 import Tour from '../models/tourModel.js';
+import AppError from '../utils/appError.js';
 import catchAsyncError from '../utils/catchAsyncError.js';
 
 export const getOverview = catchAsyncError(async (req, res) => {
@@ -14,13 +15,17 @@ export const getOverview = catchAsyncError(async (req, res) => {
   });
 });
 
-export const getTour = catchAsyncError(async (req, res) => {
+export const getTour = catchAsyncError(async (req, res, next) => {
   /** 1. get the data for requested tour, (includding reviews and guides) */
 
   const tour = await Tour.findOne({ slug: req.params.slug }).populate({
     path: 'reviews',
     field: 'review rating user',
   });
+
+  if (!tour) {
+    next(new AppError('There is not tour you requested', 404));
+  }
 
   /** 2. Build the template */
 
