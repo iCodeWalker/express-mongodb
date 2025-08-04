@@ -674,6 +674,7 @@ const mapBox = document.getElementById('map');
 const loginForm = document.querySelector('.form--login');
 const logoutBtn = document.querySelector('.nav__el--logout');
 /** user data update form */ const userUpdateForm = document.querySelector('.form-user-data');
+/** update password form */ const userUpdatePassword = document.querySelector('.form-user-settings');
 if (mapBox) {
     const locations = JSON.parse(mapBox.dataset.locations);
     (0, _mapbox.displayMap)(locations);
@@ -692,6 +693,22 @@ if (userUpdateForm) userUpdateForm.addEventListener('submit', (event)=>{
     const name = document.getElementById('name').value;
     const email = document.getElementById('email').value;
     (0, _updateSettings.updateData)(name, email);
+});
+if (userUpdatePassword) userUpdatePassword.addEventListener('submit', async (event)=>{
+    event.preventDefault();
+    /** Upadating button html on click of button */ document.querySelector('.btn-save-password').textContent = 'Updating...';
+    const currentPassword = document.getElementById('password-current').value;
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('password-confirm').value;
+    await (0, _updateSettings.updatePassword)({
+        currentPassword,
+        password,
+        confirmPassword
+    }, 'password');
+    /** Setting values of fields to empty after successfully changing the password */ document.getElementById('password-current').value = '';
+    document.getElementById('password').value = '';
+    document.getElementById('password-confirm').value = '';
+    /** Upadating button html back to default */ document.querySelector('.btn-save-password').textContent = 'Save password';
 });
 
 },{"./login":"7yHem","./mapbox":"3zDlz","./updateSettings":"l3cGY"}],"7yHem":[function(require,module,exports,__globalThis) {
@@ -5635,6 +5652,7 @@ const displayMap = (locations)=>{
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "updateData", ()=>updateData);
+parcelHelpers.export(exports, "updatePassword", ()=>updatePassword);
 var _axios = require("axios");
 var _axiosDefault = parcelHelpers.interopDefault(_axios);
 var _alerts = require("./alerts");
@@ -5649,6 +5667,18 @@ const updateData = async (name, email)=>{
             }
         });
         if (response.data.status === 'success') (0, _alerts.showAlert)('success', 'Data updated successfully');
+    } catch (err) {
+        (0, _alerts.showAlert)('error', err.response.data.message);
+    }
+};
+const updatePassword = async (data, type)=>{
+    try {
+        const response = await (0, _axiosDefault.default)({
+            method: 'PATCH',
+            url: 'http://localhost:5000/api/v1/users/update-password/',
+            data: data
+        });
+        if (response.data.status === 'success') (0, _alerts.showAlert)('success', 'Password updated successfully');
     } catch (err) {
         (0, _alerts.showAlert)('error', err.response.data.message);
     }
