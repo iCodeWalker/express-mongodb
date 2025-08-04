@@ -39,7 +39,13 @@ export const getTour = catchAsyncError(async (req, res) => {
 
 /** Login Form page */
 export const getLoginForm = catchAsyncError(async (req, res) => {
-  res.status(200).render('login', {
-    title: 'Log In',
-  });
+  res
+    .status(200)
+    .set(
+      'Content-Security-Policy',
+      "script-src 'self' blob: https://cdnjs.cloudflare.com https://api.mapbox.com https://cdn.jsdelivr.net http://127.0.0.1:5000;"
+    )
+    .render('login', {
+      title: 'Log In',
+    });
 });

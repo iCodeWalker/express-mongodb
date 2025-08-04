@@ -17,6 +17,7 @@ import viewRouter from './routes/viewRoutes.js';
 
 import AppError from './utils/appError.js';
 import globalErrorHandler from './controllers/errorController.js';
+import cookieParser from 'cookie-parser';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -77,6 +78,11 @@ app.use('/api', limiter);
  * express.json() is a middleware that puts the body data on the req object
  */
 app.use(express.json());
+
+/**
+ * Parsing cookie
+ */
+app.use(cookieParser());
 
 /** Data sanitisation */
 

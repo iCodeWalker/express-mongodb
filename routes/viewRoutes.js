@@ -4,8 +4,12 @@ import {
   getTour,
   getLoginForm,
 } from '../controllers/viewController.js';
+import { isLoggedIn, protectedRoutes } from '../controllers/authController.js';
 
 const router = express.Router();
+
+/** Middleware to check if a user is logged in */
+router.use(isLoggedIn);
 
 router.get('/', getOverview);
 

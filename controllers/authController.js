@@ -146,6 +146,8 @@ export const protectedRoutes = catchAsyncError(async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')?.[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
   }
 
   if (!token) {
@@ -326,4 +328,39 @@ export const updatePassword = catchAsyncError(async (req, res, next) => {
   //     status: 'success',
   //     token: token,
   //   });
+});
+
+/** Only for rendered pages */
+export const isLoggedIn = catchAsyncError(async (req, res, next) => {
+  let token = '';
+  if (req.cookies.jwt) {
+    token = req.cookies.jwt;
+
+    /** 1. Validating the token */
+    const decodedData = await promisify(jwt.verify)(
+      token,
+      process.env.JWT_SECRET
+    );
+
+    /**
+     *  2. Check if user still exists
+     *  Checking if the id we get in the response of verifing the token exists or not
+     */
+    const user = await User.findById(decodedData.id);
+
+    if (!user) {
+      return next();
+    }
+
+    /** 3. Check if user has changed the password */
+    if (user.changedPassword(decodedData.iat)) {
+      return next();
+    }
+
+    // ### using this we can access the user object inside our templates
+    res.locals.user = user;
+    return next();
+    /** Now can access the protected routes */
+  }
+  next();
 });
